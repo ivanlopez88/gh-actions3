@@ -1,0 +1,32 @@
+name: Generación de código
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  generar-codigo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Generar código Python desde OpenAPI
+        run: java -jar openapi-generator-cli.jar generate -i api.yaml -g python-flask -o ./openapi_server
+
+      - name: Comprimir código generado
+        run: zip -r openapi_server.zip openapi_server
+
+      - name: Subir artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi_server
+          path: openapi_server.zip
